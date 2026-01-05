@@ -23,6 +23,11 @@
     state: present
     reload: yes
 
+- name: Install iptables
+  ansible.builtin.package:
+    name: iptables
+    state: present
+
 - name: Set default FORWARD policy to DROP
   ansible.builtin.iptables:
     chain: FORWARD
