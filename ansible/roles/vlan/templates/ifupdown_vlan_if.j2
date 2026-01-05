@@ -1,0 +1,8 @@
+allow-hotplug {{ ethernet_interface }}.{{ vlan_id_wan }}
+iface {{ ethernet_interface }}.{{ vlan_id_wan }} inet dhcp
+    vlan-raw-device {{ ethernet_interface }} 
+
+allow-hotplug {{ ethernet_interface }}.{{ vlan_id_lan }}
+iface {{ ethernet_interface }}.{{ vlan_id_lan }} inet static
+    address {{ homelab_ip_router }}{{ homelab_ip_subnet_mask }}
+    vlan-raw-device {{ ethernet_interface }} 

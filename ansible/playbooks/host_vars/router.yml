@@ -1,0 +1,4 @@
+---
+ethernet_interface: ens1p0
+vlan_id_wan: 1
+vlan_id_lan: 10

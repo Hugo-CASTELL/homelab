@@ -1,0 +1,6 @@
+port=0 # DHCP-Only mode for the moment
+
+interface={{ ethernet_interface }}.{{ vlan_id_lan }}
+dhcp-range={{ homelab_dhcp_range }},{{ homelab_ip_subnet_netmask }},infinite
+dhcp-option=6,8.8.8.8,1.1.1.1 # Since it's not yet the DNS Server
+dhcp-authoritative

@@ -1,0 +1,72 @@
+---
+- name: Add the 802.1q module
+  community.general.modprobe:
+    name: 8021q
+    state: present
+    persistent: present
+
+- name: Create VLANs logical interfaces
+  ansible.builtin.template:
+    src: ifupdown_vlan_if.j2
+    dest: /etc/network/interfaces.d/vlans
+
+- name: Add sourcing the vlans file to the ifupdown configuration
+  ansible.builtin.lineinfile:
+    path: /etc/network/interfaces
+    line: "source /etc/network/interfaces.d/vlans"
+    state: present
+
+- name: Enable IP forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Set default FORWARD policy to DROP
+  ansible.builtin.iptables:
+    chain: FORWARD
+    policy: DROP
+
+- name: Insert iptables rule for LAN -> WAN through NAT
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    source: "{{ homelab_ip_subnet }}{{ homelab_ip_subnet_mask }}"
+    out_interface: "{{ ethernet_interface }}.{{ vlan_id_wan }}"
+    jump: MASQUERADE
+    state: present
+
+- name: Insert iptables rule allowing forwarding LAN -> WAN
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    in_interface: "{{ ethernet_interface }}.{{ vlan_id_lan }}"
+    out_interface: "{{ ethernet_interface }}.{{ vlan_id_wan }}"
+    jump: ACCEPT
+    state: present
+
+- name: Insert iptables rule allowing forwarding WAN -> LAN
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    in_interface: "{{ ethernet_interface }}.{{ vlan_id_wan }}"
+    out_interface: "{{ ethernet_interface }}.{{ vlan_id_lan }}"
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+    state: present
+
+- name: Install iptables-persistent
+  ansible.builtin.package:
+    name: iptables-persistent
+    state: present
+
+- name: Save iptables rules
+  ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
+  changed_when: true
+
+- name: Restart network
+  ansible.builtin.service:
+    name: networking
+    state: restarted
+   

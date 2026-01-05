@@ -1,0 +1,7 @@
+---
+- hosts: router
+  name: Router - Network configuration 
+  become: true
+  roles:
+    - vlan
+    - dnsmasq
