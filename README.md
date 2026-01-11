@@ -24,6 +24,8 @@ __Services hosts__
 
 ### Network scheme 
 
+Router-on-a-stick because the Wyse only has one ethernet interface.
+
 ```ascii
          +------------+
          | ISP Router |
@@ -67,7 +69,7 @@ __Router__
 
 ## Installation and management
 
-### Network installation
+### Network
 
 #### VLANs
 
@@ -75,11 +77,32 @@ In order to isolate the homelab from the ISP DHCP range, I've set up VLANs in th
 I've configured the VLANs as untagged first on the router machine port to be able to SSH.
 Then I configured new vlan interfaces on the router's ifupdown configuration to get it understand tagged vlan in an ansible playbook and restarted it.
 
-#### DHCP + DNS | dnsmasq
+> [!NOTE]
+> I had also to change the PVID of 802.1q to 10 for the corresponding ports in the switch configuration.
+
+#### DHCP | dnsmasq
 
 > [!NOTE]
 > [/etc/dnsmasq.conf example](https://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=blob;f=dnsmasq.conf.example;hb=HEAD)
 
+In the first place I've set up DHCP on the .10 vlan virtual interface using [dnsmasq with this config](./ansible/roles/dnsmasq/templates).
 
+### Orchestration
+
+#### Kubernetes (k0s)
+
+> [!CAUTION]
+> Version installed: [v0.28.0](https://github.com/k0sproject/k0sctl/releases/tag/v0.28.0) for amd64
+
+I use [k0sctl](https://k0sproject.io/) for managing the cluster configuration.
+
+#### Notes to myself
+
+Installed on the controller via:
+```shell
+sudo wget https://github.com/k0sproject/k0sctl/releases/download/v0.28.0/k0sctl-linux-amd64 -P /usr/local/bin
+sudo mv /usr/local/bin/k0sctl-linux-amd64 /usr/local/bin/k0sctl
+sudo chmod +x /usr/local/bin/k0sctl
+```
 
 
