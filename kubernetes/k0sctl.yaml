@@ -38,5 +38,5 @@ spec:
       taint: k0sctl.k0sproject.io/evict=true
       effect: NoExecute
       controllerWorkers: false
-    network:
-      provider: custom
+  network:
+    provider: custom
