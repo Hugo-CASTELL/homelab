@@ -5,8 +5,11 @@ metadata:
   user: admin
 spec:
   hosts:
-  - localhost:
-      enabled: true
+  - ssh:
+      address: 10.0.0.130
+      user: optiplex
+      port: 22
+      keyPath: ~/.ssh/id_ed25519
     role: controller+worker
   - ssh:
       address: 10.0.0.148
