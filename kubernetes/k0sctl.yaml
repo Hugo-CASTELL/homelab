@@ -7,9 +7,6 @@ spec:
   hosts:
   - localhost:
       enabled: true
-      sudo: true
-      user: optiplex
-      keyPath: ~/.ssh/id_ed25519
     role: controller+worker
   - ssh:
       address: 10.0.0.148
