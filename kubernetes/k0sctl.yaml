@@ -6,16 +6,16 @@ metadata:
 spec:
   hosts:
   - ssh:
-      address: 10.0.0.1
-      user: root
+      address: 127.0.0.1
+      user: optiplex
       port: 22
-      keyPath: null
-    role: controller
+      keyPath: ~/.ssh/id_ed25519
+    role: controller+worker
   - ssh:
-      address: 10.0.0.2
-      user: root
+      address: 10.0.0.148
+      user: hp
       port: 22
-      keyPath: null
+      keyPath: ~/.ssh/id_ed25519
     role: worker
   options:
     wait:
@@ -38,3 +38,5 @@ spec:
       taint: k0sctl.k0sproject.io/evict=true
       effect: NoExecute
       controllerWorkers: false
+    network:
+      provider: custom

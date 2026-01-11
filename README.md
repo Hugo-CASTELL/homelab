@@ -96,6 +96,8 @@ In the first place I've set up DHCP on the .10 vlan virtual interface using [dns
 
 I use [k0sctl](https://k0sproject.io/) for managing the cluster configuration.
 
+For network connectivity and observability, I decided to change from kuberouter to [cilium](https://docs.cilium.io/en/stable/installation/k0s/).
+
 #### Notes to myself
 
 Installed on the controller via:
@@ -104,5 +106,7 @@ sudo wget https://github.com/k0sproject/k0sctl/releases/download/v0.28.0/k0sctl-
 sudo mv /usr/local/bin/k0sctl-linux-amd64 /usr/local/bin/k0sctl
 sudo chmod +x /usr/local/bin/k0sctl
 ```
+
+For Cilium, there is a generated kubeconfig file at ~/.kube/k0s-mycluster.config (and exists as a env variable).
 
 
