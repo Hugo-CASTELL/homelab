@@ -2,4 +2,4 @@ homelab_ip_subnet_mask: /24
 homelab_ip_subnet_netmask: 255.255.255.0
 homelab_ip_subnet: 10.0.0.0
 homelab_ip_router: 10.0.0.1
-homelab_dhcp_range: 10.0.0.2,10.0.0.250
+homelab_dhcp_range: 10.0.0.2,10.0.0.200
