@@ -41,25 +41,21 @@ spec:
   k0s:
     config:
       spec:
-        network:
-          provider: custom
-          podCIDR: 172.20.0.0/16
-          serviceCIDR: 172.21.0.0/16
         extensions:
           helm:
             repositories:
             - name: traefik
               url: https://helm.traefik.io/traefik
-            - name: bitnami
-              url: https://charts.bitnami.com/bitnami
+            - name: metallb
+              url: https://metallb.github.io/metallb
             charts:
             - name: traefik
               chartname: traefik/traefik
-              version: "9.11.0"
+              version: "38.0.2"
               namespace: default
             - name: metallb
-              chartname: bitnami/metallb
-              version: "1.0.1"
+              chartname: metallb/metallb
+              version: "0.15.3"
               namespace: default
               values: |2
                 configInline:
@@ -68,3 +64,7 @@ spec:
                     protocol: layer2
                     addresses:
                     - 10.0.0.210-10.0.0.240
+        network:
+          provider: custom
+          podCIDR: 172.20.0.0/16
+          serviceCIDR: 172.21.0.0/16
