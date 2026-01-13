@@ -107,7 +107,12 @@ sudo mv /usr/local/bin/k0sctl-linux-amd64 /usr/local/bin/k0sctl
 sudo chmod +x /usr/local/bin/k0sctl
 ```
 
-For Cilium, there is a generated kubeconfig file at ~/.kube/k0s-mycluster.config (and exists as a env variable).
-The cluster must work and have a valid kubeconfig before installing cilium so I had to run a cluster with kuberouter as provider before switching to cilium.
+For Cilium, there is a generated kubeconfig file at ~/.kube/kube.config (and exists as a env variable).
+
+Cilium registry of commands I ran :
+```shell
+cilium install --version 1.18.6 --set ipam.mode=kubernetes
+```
+
 
 
