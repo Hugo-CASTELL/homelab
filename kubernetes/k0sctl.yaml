@@ -6,16 +6,16 @@ metadata:
 spec:
   hosts:
   - ssh:
-      address: 10.0.0.130
+      address: 10.0.0.131
       user: optiplex
       port: 22
-      keyPath: ~/.ssh/id_ed25519
+      keyPath: /home/optiplex/.ssh/id_ed25519
     role: controller+worker
   - ssh:
       address: 10.0.0.148
       user: hp
       port: 22
-      keyPath: ~/.ssh/id_ed25519
+      keyPath:  /home/optiplex/.ssh/id_ed25519
     role: worker
   options:
     wait:
@@ -45,16 +45,3 @@ spec:
           provider: custom
           podCIDR: 172.20.0.0/16
           serviceCIDR: 172.21.0.0/16
-        extensions:
-          helm:
-            repositories:
-              - name: cilium
-                url: https://helm.cilium.io
-            charts:
-              - name: cilium
-                chartname: cilium/cilium
-                version: 1.18.6
-                namespace: kube-system
-                values: |
-                  ipam:
-                    mode: kubernetes
