@@ -52,18 +52,11 @@ spec:
             - name: traefik
               chartname: traefik/traefik
               version: "38.0.2"
-              namespace: default
+              namespace: kube-system
             - name: metallb
               chartname: metallb/metallb
               version: "0.15.3"
-              namespace: default
-              values: |2
-                configInline:
-                  address-pools:
-                  - name: generic-cluster-pool
-                    protocol: layer2
-                    addresses:
-                    - 10.0.0.210-10.0.0.240
+              namespace: kube-system
         network:
           provider: custom
           podCIDR: 172.20.0.0/16
