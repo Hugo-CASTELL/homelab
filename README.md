@@ -98,6 +98,8 @@ I use [k0sctl](https://k0sproject.io/) for managing the cluster configuration.
 
 For network connectivity and observability, I decided to change from kuberouter to [cilium](https://docs.cilium.io/en/stable/installation/k0s/).
 
+And I initially installed Traefik+Metallb as Ingress Controller but decided to go for the Gateway API way because Cilium embeds Envoy and could be enabled.
+
 #### Notes to myself
 
 Installed on the controller via:
@@ -112,6 +114,9 @@ For Cilium, there is a generated kubeconfig file at ~/.kube/kube.config (and exi
 Cilium registry of commands I ran :
 ```shell
 cilium install --version 1.18.6 --set ipam.mode=kubernetes
+```
+```shell
+cilium upgrade --set nodePort.enabled=true --set kubeProxyReplacement=true --set l7Proxy=true --set gatewayAPI.enabled=true
 ```
 
 

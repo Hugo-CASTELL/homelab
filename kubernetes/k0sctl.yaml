@@ -42,23 +42,9 @@ spec:
   k0s:
     config:
       spec:
-        extensions:
-          helm:
-            repositories:
-            - name: traefik
-              url: https://helm.traefik.io/traefik
-            - name: metallb
-              url: https://metallb.github.io/metallb
-            charts:
-            - name: traefik
-              chartname: traefik/traefik
-              version: "38.0.2"
-              namespace: kube-system
-            - name: metallb
-              chartname: metallb/metallb
-              version: "0.15.3"
-              namespace: kube-system
         network:
           provider: custom
           podCIDR: 172.20.0.0/16
           serviceCIDR: 172.21.0.0/16
+          kubeproxy:
+            disabled: true
