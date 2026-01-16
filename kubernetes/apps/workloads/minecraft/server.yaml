@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minecraft-server
+spec:
+  selector:
+    matchLabels:
+      pod: minecraft-server
+  serviceName: "minecraft-server"
+  template:
+    metadata:
+      labels:
+        pod: minecraft-server
+    spec:
+      nodeName: hp
+      containers:
+      - name: minecraft-server
+        image: itzg/minecraft-server
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: minecraft-server-config
+        tty: true
+        stdin_open: true
+        ports:
+        - containerPort: 25565
+          protocol: TCP
+        volumeMounts:
+        - name: minecraft-server-pv-claim
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: minecraft-server-pv-claim
+    spec:
+      storageClassName: manual
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 75Gi
