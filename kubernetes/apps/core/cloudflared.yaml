@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: cloudflared-deployment
+  name: cloudflared-daemonset
   namespace: default
 spec:
-  replicas: 2
   selector:
     matchLabels:
       pod: cloudflared
@@ -13,13 +12,10 @@ spec:
       labels:
         pod: cloudflared
     spec:
-      topologySpreadConstraints:
-        - maxSkew: 1
-          whenUnsatifiable: DoNotSchedule
-          topologyKey: kubernetes.io/hostname
-          labelSelector:
-            matchLabels:
-              pod: cloudflared
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
       securityContext:
         sysctls:
         # Allows ICMP traffic (ping, traceroute) to resources behind cloudflared.
