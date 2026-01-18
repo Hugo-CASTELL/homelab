@@ -17,6 +17,7 @@ metadata:
 spec:
   parentRefs:
   - name: cilium-gateway
+    sectionName: minecraft-server-listener
   rules:
   - backendRefs:
     - name: minecraft-service

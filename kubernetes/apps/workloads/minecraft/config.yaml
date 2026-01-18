@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: minecraft-config
+  name: minecraft-server-config
   labels:
     role: service-config
     pod: minecraft-server
@@ -10,6 +10,10 @@ data:
   TYPE: MODRINTH
   MODRINTH_LOADER: fabric
   MODRINTH_MODPACK: 1ocGzRHv
+  MODRINTH_MODPACK_VERSION_TYPE: release
+  MODRINTH_FORCE_SYNCHRONIZE: "TRUE"
+  MODRINTH_EXCLUDE_FILES: |
+    simple-datapacks
   VERSION: 1.21.11
   MEMORY: 6G
   DIFFICULTY: hard
