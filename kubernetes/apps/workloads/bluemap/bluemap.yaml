@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bluemap
+spec:
+  selector:
+    matchLabels:
+      pod: bluemap
+  serviceName: "bluemap"
+  template:
+    metadata:
+      labels:
+        pod: bluemap
+    spec:
+      nodeName: hp
+      containers:
+      - name: bluemap
+        image: ghcr.io/bluemap-minecraft/bluemap
+        imagePullPolicy: Always
+        command: ["-r", "-u", "-w"]
+        ports:
+        - containerPort: 8100
+          protocol: HTTP
+        volumeMounts:
+        - name: bluemap-pv-claim
+          mountPath: /app/config
+          subPath: config
+        - name: bluemap-pv-claim
+          mountPath: /app/data
+          subPath: data
+        - name: bluemap-pv-claim
+          mountPath: /app/web
+          subPath: web
+        - name: minecraft-worlds
+          mountPath: /app/world
+          subPath: world
+          readOnly: true
+        - name: minecraft-worlds
+          mountPath: /app/world_nether
+          subPath: world_nether
+          readOnly: true
+        - name: minecraft-worlds
+          mountPath: /app/world_the_end
+          subPath: world_the_end
+          readOnly: true
+      volumes:
+        - name: minecraft-worlds
+          persistentVolumeClaim:
+            claimName: minecraft-server-pv-claim-minecraft-server-0
+  volumeClaimTemplates:
+    - metadata:
+        name: bluemap-pv-claim
+      spec:
+        storageClassName: manual
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 25Gi

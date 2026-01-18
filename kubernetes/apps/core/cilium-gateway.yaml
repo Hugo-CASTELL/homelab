@@ -5,14 +5,14 @@ metadata:
 spec:
   gatewayClassName: cilium
   listeners:
-  - name: minecraft-server-listener
-    protocol: TCP
-    port: 25565
+  - name: bluemap-listener
+    protocol: HTTP
+    port: 8100
     allowedRoutes:
       namespaces:
         from: All 
       kinds:
-      - kind: TCPRoute
+      - kind: HTTPRoute
 ---
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumLoadBalancerIPPool
