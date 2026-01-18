@@ -18,9 +18,6 @@ spec:
         image: ghcr.io/bluemap-minecraft/bluemap
         imagePullPolicy: Always
         command: ["-r", "-u", "-w"]
-        ports:
-        - containerPort: 8100
-          protocol: HTTP
         volumeMounts:
         - name: bluemap-pv-claim
           mountPath: /app/config
