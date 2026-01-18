@@ -17,7 +17,7 @@ spec:
       - name: bluemap
         image: ghcr.io/bluemap-minecraft/bluemap
         imagePullPolicy: Always
-        command: ["-r", "-u", "-w"]
+        args: ["-r", "-u", "-w"]
         volumeMounts:
         - name: bluemap-pv-claim
           mountPath: /app/config
