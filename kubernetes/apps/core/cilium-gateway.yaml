@@ -8,6 +8,9 @@ spec:
   - name: bluemap-listener
     protocol: HTTP
     port: 8100
+    allowedRoutes:
+      namespaces:
+        from: Same
 ---
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumLoadBalancerIPPool
