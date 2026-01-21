@@ -28,22 +28,34 @@ spec:
             - mountPath: /etc/localtime
               name: home-assistant-time-volume
               readOnly: true
-  volumeClaimTemplates:
-    - metadata:
-        name: home-assistant-pv-claim
-      spec:
-        storageClassName: manual
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 10Gi
-    - metadata:
-        name: home-assistant-time-pv-claim
-      spec:
-        storageClassName: manual
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 1Mi
+      volumes:
+        - name: home-assistant-config-volume
+          persistentVolumeClaim:
+            claimName: home-assistant-pv-claim
+        - name: home-assistant-time-volume
+          persistentVolumeClaim:
+            claimName: home-assistant-time-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-time-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi
