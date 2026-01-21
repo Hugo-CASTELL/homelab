@@ -84,7 +84,7 @@
       After=network.target
 
       [Service]
-      ExecStart=/usr/sbin/bcrelay -d -i enp1s0.1 -i enp1s0.10
+      ExecStart=/usr/sbin/bcrelay -d -i enp1s0.10 -o enp1s0.1
       Restart=always
 
       [Install]
