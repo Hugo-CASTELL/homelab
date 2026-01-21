@@ -61,10 +61,25 @@
     jump: ACCEPT
     state: present
 
-- name: Install udp-broadcast-relay dependencies
+- name: Install iptables-persistent
   ansible.builtin.package:
-    name: udp-broadcast-relay
+    name: iptables-persistent
     state: present
+
+- name: Save iptables rules
+  ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
+  changed_when: true
+
+- name: Install build-essential if compiling or just use wget
+  ansible.builtin.package:
+    name: wget
+    state: present
+
+- name: Download udp-broadcast-relay binary
+  ansible.builtin.get_url:
+    url: https://github.com/marjohn56/udp-broadcast-relay/raw/master/udp-broadcast-relay-bin
+    dest: /usr/sbin/udp-broadcast-relay
+    mode: '0755'
 
 - name: Create systemd service for UDP Relay (Port 9999)
   ansible.builtin.copy:
@@ -75,7 +90,7 @@
       After=network.target
 
       [Service]
-      # Usage: udp-broadcast-relay <port> <iface1> <iface2> ...
+      # ID 1, Port 9999, Interfaces enp1s0.1 and enp1s0.10
       ExecStart=/usr/sbin/udp-broadcast-relay 1 9999 enp1s0.1 enp1s0.10
       Restart=always
 
@@ -91,6 +106,7 @@
       After=network.target
 
       [Service]
+      # ID 2, Port 20002, Interfaces enp1s0.1 and enp1s0.10
       ExecStart=/usr/sbin/udp-broadcast-relay 2 20002 enp1s0.1 enp1s0.10
       Restart=always
 
@@ -106,15 +122,6 @@
   loop:
     - udp-relay-9999.service
     - udp-relay-20002.service
-
-- name: Install iptables-persistent
-  ansible.builtin.package:
-    name: iptables-persistent
-    state: present
-
-- name: Save iptables rules
-  ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
-  changed_when: true
 
 - name: Restart network
   ansible.builtin.service:
