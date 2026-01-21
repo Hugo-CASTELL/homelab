@@ -75,53 +75,34 @@
     name: wget
     state: present
 
-- name: Download udp-broadcast-relay binary
-  ansible.builtin.get_url:
-    url: https://github.com/marjohn56/udp-broadcast-relay/raw/master/udp-broadcast-relay-bin
-    dest: /usr/sbin/udp-broadcast-relay
-    mode: '0755'
+- name: Install bcrelay (via pptp-linux package)
+  ansible.builtin.package:
+    name: pptp-linux
+    state: present
 
-- name: Create systemd service for UDP Relay (Port 9999)
+- name: Create systemd service for bcrelay
   ansible.builtin.copy:
-    dest: /etc/systemd/system/udp-relay-9999.service
+    dest: /etc/systemd/system/bcrelay.service
     content: |
       [Unit]
-      Description=UDP Broadcast Relay on port 9999
+      Description=Broadcast Relay Service
       After=network.target
 
       [Service]
-      # ID 1, Port 9999, Interfaces enp1s0.1 and enp1s0.10
-      ExecStart=/usr/sbin/udp-broadcast-relay 1 9999 enp1s0.1 enp1s0.10
+      # -i defines the interfaces to bridge for broadcasts
+      # -d runs it in the foreground for systemd logs
+      ExecStart=/usr/sbin/bcrelay -d -i enp1s0.1 -i enp1s0.10
       Restart=always
 
       [Install]
       WantedBy=multi-user.target
 
-- name: Create systemd service for UDP Relay (Port 20002)
-  ansible.builtin.copy:
-    dest: /etc/systemd/system/udp-relay-20002.service
-    content: |
-      [Unit]
-      Description=UDP Broadcast Relay on port 20002
-      After=network.target
-
-      [Service]
-      # ID 2, Port 20002, Interfaces enp1s0.1 and enp1s0.10
-      ExecStart=/usr/sbin/udp-broadcast-relay 2 20002 enp1s0.1 enp1s0.10
-      Restart=always
-
-      [Install]
-      WantedBy=multi-user.target
-
-- name: Enable and start UDP Relay services
+- name: Enable and start bcrelay service
   ansible.builtin.systemd:
-    name: "{{ item }}"
+    name: bcrelay
     enabled: yes
     state: started
     daemon_reload: yes
-  loop:
-    - udp-relay-9999.service
-    - udp-relay-20002.service
 
 - name: Restart network
   ansible.builtin.service:
