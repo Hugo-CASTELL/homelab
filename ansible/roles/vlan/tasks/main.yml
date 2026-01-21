@@ -61,6 +61,54 @@
     jump: ACCEPT
     state: present
 
+- name: Allow mDNS (UDP 5353) between VLANs
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: udp
+    destination_port: 5353
+    jump: ACCEPT
+    state: present
+
+- name: Allow mDNS (UDP 5353) return traffic between VLANs
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: udp
+    source_port: 5353
+    jump: ACCEPT
+    state: present
+
+- name: Allow SSDP (UDP 1900) between VLANs
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: udp
+    destination_port: 1900
+    jump: ACCEPT
+    state: present
+
+- name: Allow SSDP (UDP 1900) return traffic between VLANs
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: udp
+    source_port: 1900
+    jump: ACCEPT
+    state: present
+
+- name: Allow HTTP traffic (TCP 80)
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+    state: present
+
+- name: Allow HTTPS traffic (TCP 443)
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: tcp
+    destination_port: 443
+    jump: ACCEPT
+    state: present
+
 - name: Install iptables-persistent
   ansible.builtin.package:
     name: iptables-persistent
@@ -69,6 +117,24 @@
 - name: Save iptables rules
   ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
   changed_when: true
+
+- name: Install smcroute
+  ansible.builtin.apt:
+    name: smcroute
+    state: present
+    update_cache: yes
+
+- name: Add multicast route for LAN VLAN
+  ansible.builtin.command: >
+    smcroutectl add {{ ethernet_interface }}.{{ vlan_id_lan }} 224.0.0.0/4
+  register: smcroute_lan
+  changed_when: "'already exists' not in smcroute_lan.stderr"
+
+- name: Add multicast route for WAN VLAN
+  ansible.builtin.command: >
+    smcroutectl add {{ ethernet_interface }}.{{ vlan_id_wan }} 224.0.0.0/4
+  register: smcroute_wan
+  changed_when: "'already exists' not in smcroute_wan.stderr"
 
 - name: Restart network
   ansible.builtin.service:
