@@ -61,35 +61,35 @@
     jump: ACCEPT
     state: present
 
-- name: Allow mDNS (UDP 5353) between VLANs
+- name: Allow TP-Link Smart Home Service Discovery (UDP 9999) between VLANs
   ansible.builtin.iptables:
     chain: FORWARD
     protocol: udp
-    destination_port: 5353
+    destination_port: 9999
     jump: ACCEPT
     state: present
 
-- name: Allow mDNS (UDP 5353) return traffic between VLANs
+- name: Allow TP-Link Smart Home Service Discovery return traffic (UDP 9999) between VLANs
   ansible.builtin.iptables:
     chain: FORWARD
     protocol: udp
-    source_port: 5353
+    source_port: 9999
     jump: ACCEPT
     state: present
 
-- name: Allow SSDP (UDP 1900) between VLANs
+- name: Allow TP-Link Smart Home Service Discovery (UDP 20002) between VLANs
   ansible.builtin.iptables:
     chain: FORWARD
     protocol: udp
-    destination_port: 1900
+    destination_port: 20002
     jump: ACCEPT
     state: present
 
-- name: Allow SSDP (UDP 1900) return traffic between VLANs
+- name: Allow TP-Link Smart Home Service Discovery return traffic (UDP 20002) between VLANs
   ansible.builtin.iptables:
     chain: FORWARD
     protocol: udp
-    source_port: 1900
+    source_port: 20002
     jump: ACCEPT
     state: present
 
@@ -106,6 +106,13 @@
     chain: FORWARD
     protocol: tcp
     destination_port: 443
+    jump: ACCEPT
+    state: present
+
+- name: Allow multicast forwarding between VLANs
+  ansible.builtin.iptables:
+    chain: FORWARD
+    destination: 224.0.0.0/4
     jump: ACCEPT
     state: present
 
@@ -135,6 +142,10 @@
     smcroutectl add {{ ethernet_interface }}.{{ vlan_id_wan }} 224.0.0.0/4
   register: smcroute_wan
   changed_when: "'already exists' not in smcroute_wan.stderr"
+
+- name: Save smcroute configuration
+  ansible.builtin.command: smcroutectl save
+  changed_when: true
 
 - name: Restart network
   ansible.builtin.service:
