@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant
+  labels:
+    app: home-assistant
+spec:
+  selector:
+    matchLabels:
+      app: home-assistant
+  template:
+    metadata:
+      labels:
+        app: home-assistant
+    spec:
+      nodeName: optiplex
+      hostNetwork: true
+      containers:
+        - name: home-assistant
+          image: homeassistant/home-assistant:stable
+          securityContext:
+            privileged: true
+          ports:
+            - containerPort: 8123
+          volumeMounts:
+            - mountPath: /config
+              name: home-assistant-config-volume
+            - mountPath: /etc/localtime
+              name: home-assistant-time-volume
+              readOnly: true
+  volumeClaimTemplates:
+    - metadata:
+        name: home-assistant-pv-claim
+      spec:
+        storageClassName: manual
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+    - metadata:
+        name: home-assistant-time-pv-claim
+      spec:
+        storageClassName: manual
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Mi
