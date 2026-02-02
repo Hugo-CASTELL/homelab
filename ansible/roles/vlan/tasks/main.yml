@@ -17,21 +17,129 @@
     state: present
 
 - name: Enable IP forwarding
+  become: true
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '1'
     state: present
     reload: yes
 
+- name: Enable multicast routing (ensure beforehand that a daemon is running like smcroute in my case)
+  become: true
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.mc_forwarding
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Enable multicast routing on VLAN interfaces (persistent)
+  become: true
+  lineinfile:
+    path: /etc/sysctl.d/99-multicast-vlan.conf
+    line: "net.ipv4.conf.{{ ethernet_interface }}.{{ item }}.mc_forwarding = 1"
+    create: yes
+  loop:
+    - "{{ vlan_id_lan }}"
+    - "{{ vlan_id_wan }}"
+
+- name: Reload sysctl
+  become: true
+  command: sysctl --system
+
+- name: Disable reverse path filtering (breaks multicast)
+  become: true
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: '0'
+    state: present
+    reload: yes
+
+- name: Install socat
+  apt:
+    name: socat
+    state: present
+    update_cache: yes
+
+- name: Create Govee Multicast-SSDP-like request reflector systemd service (LAN -> WAN)
+  copy:
+    dest: /etc/systemd/system/ssdp-request-reflector.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Govee Multicast-SSDP-like Request Reflector (VLAN {{ vlan_id_lan }} -> VLAN {{ vlan_id_wan }})
+      After=network.target
+      Wants=network-online.target
+
+      [Service]
+      ExecStart=/usr/bin/socat UDP4-RECVFROM:4001,ip-add-membership=239.255.255.250:{{ ethernet_interface }}.{{ vlan_id_lan }},reuseaddr=1 UDP-DATAGRAM:239.255.255.250:4001,ip-add-membership 239.255.255.250:{{ ethernet_interface }}.{{ vlan_id_wan }}
+      Restart=always
+      RestartSec=2
+      User=root
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Create Govee Multicast-SSDP-like reply reflector systemd service (WAN -> LAN)
+  copy:
+    dest: /etc/systemd/system/ssdp-reply-reflector.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Govee Multicast-SSDP-like Reply Reflector (VLAN {{ vlan_id_wan }} -> VLAN {{ vlan_id_lan }})
+      After=network.target
+      Wants=network-online.target
+
+      [Service]
+      ExecStart=/usr/bin/socat UDP4-RECVFROM:4002,so-bindtodevice={{ ethernet_interface }}.{{ vlan_id_wan }},reuseaddr,fork UDP4-SENDTO:{{ k0s_homeassistant_host_ip }}:4002,interface={{ ethernet_interface }}.{{ vlan_id_lan }}
+      Restart=always
+      RestartSec=2
+
+      [Install]
+      WantedBy=multi-user.target
+
 - name: Install iptables
   ansible.builtin.package:
     name: iptables
+    state: present
+
+- name: Flush all iptables rules in filter table
+  ansible.builtin.iptables:
+    flush: yes
+
+- name: Allow multicast forwarding
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    destination: 224.0.0.0/4
+    jump: ACCEPT
     state: present
 
 - name: Set default FORWARD policy to DROP
   ansible.builtin.iptables:
     chain: FORWARD
     policy: DROP
+
+- name: Allow IGMP packets
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    protocol: igmp
+    jump: ACCEPT
+    state: present
+
+- name: Allow SSDP Forwarding
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    in_interface: "{{ item.in }}"
+    out_interface: "{{ item.out }}"
+    protocol: udp
+    destination_port: "4001,4002"
+    match: multiport
+    jump: ACCEPT
+  loop:
+    - { in: "{{ ethernet_interface }}.{{ vlan_id_wan }}", out: "{{ ethernet_interface }}.{{ vlan_id_lan }}" }
+    - { in: "{{ ethernet_interface }}.{{ vlan_id_lan }}", out: "{{ ethernet_interface }}.{{ vlan_id_wan }}" }
 
 - name: Insert iptables rule for LAN -> WAN through NAT
   ansible.builtin.iptables:
@@ -70,35 +178,17 @@
   ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
   changed_when: true
 
-- name: Install bcrelay (via pptp-linux package)
-  ansible.builtin.package:
-    name: bcrelay
-    state: present
-
-- name: Create systemd service for bcrelay
-  ansible.builtin.copy:
-    dest: /etc/systemd/system/bcrelay.service
-    content: |
-      [Unit]
-      Description=Broadcast Relay Service
-      After=network.target
-
-      [Service]
-      ExecStart=/usr/sbin/bcrelay -d -i enp1s0.10 -o enp1s0.1
-      Restart=always
-
-      [Install]
-      WantedBy=multi-user.target
-
-- name: Enable and start bcrelay service
-  ansible.builtin.systemd:
-    name: bcrelay
-    enabled: yes
-    state: started
-    daemon_reload: yes
-
 - name: Restart network
   ansible.builtin.service:
     name: networking
     state: restarted
-   
+
+- name: Enable and start SSDP services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  loop:
+    - ssdp-request-reflector
+    - ssdp-reply-reflector

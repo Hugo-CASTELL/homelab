@@ -2,3 +2,4 @@
 ethernet_interface: enp1s0
 vlan_id_wan: 1
 vlan_id_lan: 10
+k0s_homeassistant_host_ip: 10.0.0.131 # currently, might change if dhcp reload
