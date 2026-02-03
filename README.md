@@ -24,7 +24,7 @@ __Services hosts__
 
 ### Network scheme 
 
-Router-on-a-stick because the Wyse only has one ethernet interface.
+Router-on-a-stick because the Wyse has only one ethernet interface.
 
 ```ascii
          +------------+
@@ -58,8 +58,6 @@ Port 1 (VLAN 1) |
 | 3           | Server1    | 10 untagged | LAN          |
 | 4           | Server2    | 10 untagged | LAN          |
 
-### Router configuration
-
 ## Software
 
 __Router__
@@ -80,12 +78,27 @@ Then I configured new vlan interfaces on the router's ifupdown configuration to 
 > [!NOTE]
 > I had also to change the PVID of 802.1q to 10 for the corresponding ports in the switch configuration.
 
+##### Multicast across VLANs
+
+Later on, I had to connect Govee TV Bars to my Home Assistant but it uses a SSDP-like protocol.
+
+Because it is designed to work only in the LAN of the host and I aim to make this setup sustainbable, I had to trick the protocol to run accross vlans in order to use the only wifi access point in the setup which is my ISP Router.
+
+The according documentation from govee is available [here](https://app-h5.govee.com/user-manual/wlan-guide).
+
+From what we learn about is that IP doesn't matter, it is an API that only reads a JSON. Calls are made on port 4001 of the receiver and updates are sent to port 4002 of the sender.
+
+As multicast is blocked by design from being routed, I used `socat` to reflect the received packets between vlan interfaces. The according configuration is in [this ansible task](./ansible/roles/vlan/tasks/main.yml)
+
+
 #### DHCP | dnsmasq
 
 > [!NOTE]
 > [/etc/dnsmasq.conf example](https://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=blob;f=dnsmasq.conf.example;hb=HEAD)
 
 In the first place I've set up DHCP on the .10 vlan virtual interface using [dnsmasq with this config](./ansible/roles/dnsmasq/templates).
+
+Then connected the other machines to the switch and ran dhcp-client if ethernet hotplug dhcp request wasn't send.
 
 ### Orchestration
 
