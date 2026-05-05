@@ -1,0 +1,2 @@
+tunnel: homeserver_tunnel
+credentials-file: /run/secrets/tunnel_token

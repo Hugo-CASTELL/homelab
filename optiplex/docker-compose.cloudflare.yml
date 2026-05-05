@@ -1,0 +1,18 @@
+services:
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    hostname: cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    volumes:
+      - ./config/cloudflared.yml:/usr/local/etc/cloudflared/config.yml:ro
+      - ./config/tunnel_token:/run/secrets/tunnel_token:ro
+    networks:
+      - optiplex-net
+    ports:
+      - 80:80
+
+networks:
+  optiplex-net:
+    external: true
