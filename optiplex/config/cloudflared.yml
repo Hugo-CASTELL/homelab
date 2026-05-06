@@ -1,2 +1,2 @@
-tunnel: homeserver_tunnel
+tunnel: optiplex_tunnel
 credentials-file: /run/secrets/tunnel_token
