@@ -5,9 +5,10 @@ services:
     hostname: cloudflare-tunnel
     restart: unless-stopped
     command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
     volumes:
       - ./config/cloudflared.yml:/usr/local/etc/cloudflared/config.yml:ro
-      - ./config/tunnel_token:/run/secrets/tunnel_token:ro
     networks:
       - optiplex-net
     ports:

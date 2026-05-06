@@ -7,6 +7,13 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+if [ ! -s "./config/tunnel_token" ]; then
+  echo "Configuration files missing"
+  exit 2
+fi
+
+export TUNNEL_TOKEN=$(cat "./config/tunnel_token")
+
 if [ "$1" = "up" ]; then
   docker network create optiplex-net
   docker compose up --detach
