@@ -1,0 +1,24 @@
+services:
+  mc-modded:
+    image: itzg/minecraft-server
+    container_name: minecraft-modded
+    tty: true
+    stdin_open: true
+    environment:
+      EULA: "TRUE"
+      TYPE: MODRINTH
+      MODRINTH_LOADER: fabric
+      MODRINTH_MODPACK: 6HvKwSky
+      VERSION: 1.20.1
+      MEMORY: 6G
+      DIFFICULTY: hard
+      MOTD: "§l§cMcDaServeur"
+    networks:
+      - elitedesk-net
+    volumes:
+      - /mnt/minecraft/modded-server-data:/data
+    restart: unless-stopped
+
+networks:
+  elitedesk-net:
+    external: true
