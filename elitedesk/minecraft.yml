@@ -8,8 +8,9 @@ services:
       EULA: "TRUE"
       TYPE: MODRINTH
       MODRINTH_LOADER: fabric
-      MODRINTH_MODPACK: 6HvKwSky
-      VERSION: 1.20.1
+      MODRINTH_MODPACK: 1ocGzRHv
+      VERSION: 26.1.2
+      JAVA_VERSION: 25
       MEMORY: 6G
       DIFFICULTY: hard
       MOTD: "§l§cMcDaServeur"
