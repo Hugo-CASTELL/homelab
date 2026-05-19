@@ -1,0 +1,60 @@
+services:
+  minecraft:
+    image: itzg/minecraft-server
+    pull_policy: always
+    container_name: minecraft
+    tty: true
+    stdin_open: true
+    environment:
+      EULA: "TRUE"
+      TYPE: MODRINTH
+      MODRINTH_LOADER: FABRIC
+      MODRINTH_MODPACK: BYN9yKrV
+      VERSION: 26.1.2
+      MEMORY: 12G
+      DIFFICULTY: normal
+      MOTD: "§l§cMcDaServeur"
+      MODRINTH_ALLOWED_VERSION_TYPE: alpha
+      MODRINTH_PROJECTS: |
+        bluemap
+        create-fly
+        dungeons-and-taverns
+        explorify
+        friends-and-foes
+        geophilic
+        incendium
+        jagms-kiwis
+        lootr
+        more-mobs
+        nullscape
+        pneumono_gravestones
+        rightclickharvest
+        sdlink
+        structory
+        tectonic
+        towns-and-towers
+        unique-mobs
+        untitled-duck-mod
+        waystones
+        balm
+        cristel-lib
+        craterlib
+        fabric-api
+        geckolib
+        jamlib
+        lithostitched
+        pneumono_core
+        resourceful-lib
+        shogi
+      ENABLE_RCON: "true"
+      RCON_PASSWORD: "rconpass"
+      RCON_PORT: 25575
+    networks:
+      - optiplex-net
+    volumes:
+      - /mnt/minecraft/server-data:/data
+    restart: unless-stopped
+
+networks:
+  optiplex-net:
+    external: true
